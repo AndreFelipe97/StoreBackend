@@ -16,7 +16,7 @@ namespace Api.Data.Mapping
                 .IsRequired()
                 .HasMaxLength(11);
             builder.Property(c => c.CreatedAt)
-                .HasDefaultValueSql("getdate()");
+                .HasDefaultValue(DateTime.Now);
             builder.Property(c => c.UpdatedAt);
         }
     }
