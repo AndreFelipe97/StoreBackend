@@ -10,17 +10,19 @@ namespace Api.Application.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UsersController(IUserService service) : ControllerBase
     {
+        private readonly IUserService _service = service;
+
         [HttpGet]
-        public async Task<ActionResult> Get([FromServices] IUserService service)
+        public async Task<ActionResult> Get()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                return Ok(await service.GetAll());
+                return Ok(await _service.GetAll());
             }
             catch (ArgumentException e)
             {
