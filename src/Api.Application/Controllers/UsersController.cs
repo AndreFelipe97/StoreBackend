@@ -15,7 +15,7 @@ namespace Api.Application.Controllers
         private readonly IUserService _service = service;
 
         [HttpGet]
-        public async Task<ActionResult> Get()
+        public async Task<ActionResult> GetAll()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -31,37 +31,21 @@ namespace Api.Application.Controllers
 
         }
 
-        // [HttpGet("{id}")]
-        // public async Task<ActionResult<string>> Get(int id, string name)
-        // {
-        //     if (!ModelState.IsValid)
-        //         return BadRequest(ModelState);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<string>> Get(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        //     try
-        //     {
-        //         return Ok("UserController - Get with id " + id + " and name " + name);
-        //     }
-        //     catch (ArgumentException e)
-        //     {
-        //         return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
-        //     }
-        // }
-
-        // [HttpPost]
-        // public async Task<ActionResult<string>> Post()
-        // {
-        //     if (!ModelState.IsValid)
-        //         return BadRequest(ModelState);
-
-        //     try
-        //     {
-        //         return Ok("UserController - Post");
-        //     }
-        //     catch (ArgumentException e)
-        //     {
-        //         return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
-        //     }
-        // }
+            try
+            {
+                return Ok(await _service.Get(id));
+            }
+            catch (ArgumentException e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
 
         // [HttpPut("{id}")]
         // public async Task<ActionResult<string>> Put(int id)
