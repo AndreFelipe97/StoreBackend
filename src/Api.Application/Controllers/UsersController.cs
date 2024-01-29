@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Api.Domain.Entities;
 using Api.Domain.Interfaces.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +32,7 @@ namespace Api.Application.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetWithId")]
         public async Task<ActionResult<string>> Get(int id)
         {
             if (!ModelState.IsValid)
@@ -47,22 +48,76 @@ namespace Api.Application.Controllers
             }
         }
 
-        // [HttpPut("{id}")]
-        // public async Task<ActionResult<string>> Put(int id)
-        // {
-        //     if (!ModelState.IsValid)
-        //         return BadRequest(ModelState);
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] UserEntity user)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        //     return Ok("UserController - Put");
-        // }
+            try
+            {
+                var result = await _service.Post(user);
+                if (result != null)
+                {
+                    var uriString = Url.Link("GetWithId", new { id = result.Id });
+                    if (uriString != null)
+                        return Created(new Uri(uriString), result);
+                    else
+                        return BadRequest();
+                }
+                else
+                {
+                    return BadRequest("Não foi possível atualizar o usuário");
+                }
+            }
+            catch (ArgumentException e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
 
-        // [HttpDelete("{id}")]
-        // public async Task<ActionResult<string>> Delete(int id)
-        // {
-        //     if (!ModelState.IsValid)
-        //         return BadRequest(ModelState);
+        }
 
-        //     return Ok("UserController - Delete");
-        // }
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Put(int id, [FromBody] UserEntity user)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (id != user.Id)
+                return BadRequest();
+
+            try
+            {
+                var result = await _service.Put(user);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (ArgumentException e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                return Ok(await _service.Delete(id));
+            }
+            catch (ArgumentException e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
     }
 }
